@@ -1,0 +1,17 @@
+这是模仿Spring的第三个版本Spring_v3，
+    主要完善了Spring的aop功能
+目的：对service包下的*Service.class中所有的方法进行面向切面，对其方法实现增强
+具体做法：浏览器访问controller中的某个方法时，调用某个代理的service对象执行，就会
+出发aop增强代码。
+    所以在getBean()时，返回的是代理对象，在invoke之前对执行的方法进行增强,在spring_v2
+版本getBean()返回的BeanWrapper其实还是原来的对象，在这里返回代理对象FHAopProxy。
+    同时会出现一个问题，就是在springmvc中初始化initHandlerMapping()时getBean()获取
+所有的类，判断是否是Controller或者Service注解，但新增aop功能，返回的都是代理对象，所以
+在springmvc初始化initHandlerMapping()时获得原始对象。
+    具体实现：
+        1.beanWrapper.setAopConfig()设置aop配置对象AopConfig
+        在getBean()时，得到BeanWrapper对象，把aop配置传入该对象中
+        2.aop配置，instantionAopConfig(bean)，看该bean或者bean中的方法是否需要
+   设置aop增强。返回AopConfig对象,该对象存放需要增强的方法和增强的代码
+        3.往BeanWrapper包装对象传入产生代理对象的工具AopProxy
+        4.代理对象工具中传入代理的目标对象，需要增强的代码，和aop配置
